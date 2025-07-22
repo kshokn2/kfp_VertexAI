@@ -1,0 +1,41 @@
+steps:
+  # Docker build
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      "build", "-t", 
+      "asia-northeast3-docker.pkg.dev/my_project/docker_repo/my-mlops", 
+      "-f", 
+      "pipeline/my-mlops/Dockerfile", 
+      ".", 
+      "--network=cloudbuild"
+    ]
+
+  # Docker push to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      "push", 
+      "asia-northeast3-docker.pkg.dev/my_project/docker_repo/my-mlops"
+    ]
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    args: [
+      "run", "jobs", "deploy", "my-mlops",
+      "--region=asia-northeast3",
+      "--image=asia-northeast3-docker.pkg.dev/my_project/docker_repo/my-mlops",
+      "--vpc-connector=projects/my_project/locations/asia-northeast3/connectors/mlops-connector",
+      "--set-env-vars=VERTEX_PROJECT_ID=my_project,VERTEX_LOCATION=asia-northeast3",
+      "--execute-now",
+      "--task-timeout=2h"
+    ]
+
+images:
+  - 'asia-northeast3-docker.pkg.dev/my_project/docker_repo/my-mlops'
+
+serviceAccount: 'projects/my_project/serviceAccounts/compute@developer.gserviceaccount.com'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+pool:
+  name: 'projects/my-shrd-pjt/locations/asia-northeast3/workerPools/vpc-private-pool'

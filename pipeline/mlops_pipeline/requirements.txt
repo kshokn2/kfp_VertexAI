@@ -1,0 +1,18 @@
+# gcp
+google-api-python-client
+google-auth
+google-auth-httplib2
+google-auth-oauthlib
+google-cloud-pipeline-components==2.19.0
+google-cloud-secret-manager
+google-cloud-aiplatform
+google-cloud-appengine-logging>=1.4.0
+google-cloud-audit-log>=0.2.5
+google-cloud-logging>=3.9.0
+
+# kubeflow
+kfp==2.10.1
+
+# etc
+pytz
+python-dotenv

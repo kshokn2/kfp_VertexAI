@@ -1,0 +1,41 @@
+steps:
+  # Docker build
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      "build", "-t", 
+      "docker_image_name", 
+      "-f", 
+      "folder/Dockerfile", 
+      ".", 
+      "--network=cloudbuild"
+    ]
+
+  # Docker push to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      "push", 
+      "docker_image_name"
+    ]
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    args: [
+      "run", "jobs", "deploy", "my-mlops",
+      "--region=",
+      "--image=docker_image_name,
+      "--vpc-connector=",
+      "--set-env-vars=ENV1=val_1,ENV2=val_2",
+      "--execute-now",
+      "--task-timeout=2h"
+    ]
+
+images:
+  - 'docker_image_name'
+
+serviceAccount: 'serviceaccount.com'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+pool:
+  name: 'my_vpc'
